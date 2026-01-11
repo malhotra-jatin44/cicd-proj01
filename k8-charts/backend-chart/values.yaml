@@ -14,7 +14,7 @@ image:
   tag: "4d3a0b0ff66bcf95990eed8a4b0ba5557ee81870"
 
 env:
-  dbrhost: mysql-chart
+  dbrhost: mysql001-mysql-chart
   dbrpassword: adaline
   dbruser: root
   dbrname: demodb
