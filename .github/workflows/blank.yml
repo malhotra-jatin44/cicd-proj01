@@ -58,10 +58,10 @@ jobs:
 
       # 9️⃣ Lint Helm charts
       - name: Helm lint
-        working-directory: k8-charts
+        # working-directory: k8-charts
         run: |
-          helm lint helm/backend-chart
-          helm lint helm/mysql-chart
+          helm lint k8-charts/backend-chart
+          helm lint k8-charts/mysql-chart
 
       # 🔟 Update image tag in Helm values
       - name: Update Helm image tag
