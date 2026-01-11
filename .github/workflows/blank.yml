@@ -54,7 +54,7 @@ jobs:
       # 7️⃣ Push Docker image
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/node-app01:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/node-app01:${{ github.sha }}
 
       # 8️⃣ Install Helm
       - name: Install Helm
