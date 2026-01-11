@@ -1,36 +1,77 @@
-# This is a basic workflow to help you get started with Actions
+name: Node MySQL CI Pipeline
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  ci:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      # 1️⃣ Checkout repository
+      - name: Checkout source code
+        uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      # 2️⃣ Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      # 3️⃣ Install Node dependencies (backend directory)
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      # 4️⃣ Run tests (backend directory)
+      - name: Run unit tests
+        working-directory: backend
+        run: npm test
+
+      # 5️⃣ Login to Docker Hub
+      - name: Login to Docker Hub
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login \
+            -u ${{ secrets.DOCKERHUB_USERNAME }} \
+            --password-stdin
+
+      # 6️⃣ Build Docker image (Dockerfile inside backend)
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/node-app01:${{ github.sha }} \
+            backend
+
+      # 7️⃣ Push Docker image
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/node-app01:${{ github.sha }}
+
+      # 8️⃣ Install Helm
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      # # 9️⃣ Lint Helm charts
+      # - name: Helm lint
+      #   run: |
+      #     helm lint helm/nodejs
+      #     helm lint helm/mysql
+
+      # # 🔟 Update image tag in Helm values
+      # - name: Update Helm image tag
+      #   run: |
+      #     sed -i "s/tag:.*/tag: \"${{ github.sha }}\"/" helm/nodejs/values.yaml
+
+      # # 1️⃣1️⃣ Commit Helm changes (GitOps handoff)
+      # - name: Commit Helm changes
+      #   run: |
+      #     git config user.name "github-actions"
+      #     git config user.email "actions@github.com"
+      #     git add helm/nodejs/values.yaml
+      #     git commit -m "ci: update node-app image to ${{ github.sha }}"
+      #     git push
