@@ -41,14 +41,14 @@ jobs:
       #       --password-stdin
       - name: Login to Docker Hub
         run: |
-          echo ${{ secrets.DOCKER_PASSWORD }} | docker login \
-            -u ${{ secrets.DOCKER_USERNAME }} \
+          echo "Omnamahshivay@44" | docker login \
+            -u "jatin44" \
       
       # 6️⃣ Build Docker image (Dockerfile inside backend)
       - name: Build Docker image
         run: |
           docker build \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/node-app01:${{ github.sha }} \
+            -t jatin44/node-app01:${{ github.sha }} \
             backend
 
       # 7️⃣ Push Docker image
