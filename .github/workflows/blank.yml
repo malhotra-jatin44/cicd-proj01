@@ -41,7 +41,7 @@ jobs:
       #       --password-stdin
       - name: Login to Docker Hub
         run: |
-          echo "Omnamahshivay@44" | docker login docker.io -u "jatin44" --password-stdin
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login docker.io -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
       
       # 6️⃣ Build Docker image (Dockerfile inside backend)
